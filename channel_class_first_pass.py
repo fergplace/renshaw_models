@@ -198,3 +198,105 @@ h Tau	0.01*v + 6.7
 
 ##NAV: mod files look like this :https://modeldb.science/230137?tab=2&file=SinKin_ModelDB/Nav11_a.mod
 
+#1.3
+'''
+
+Animal	rat
+CellType	Neocortical
+Age	0 Days
+Temperature	23.0°C
+Reversal	50.0 mV
+Ion	Na +
+Ligand ion	
+Reference	[43] T R Cummins et. al; J. Neurosci. 2001 Aug 15
+mpower	3.0
+m Alpha	(0.182 * ((v)- -26))/(1-(exp(-((v)- -26)/9))) If v neq -26
+m Beta	(0.124 * (-(v) -26))/(1-(exp(-(-(v) -26)/9))) If v neq -26
+hpower	1.0
+h Inf	1 /(1+exp((v-(-65.0))/8.1))
+h Tau	0.40 + (0.265 * exp(-v/9.47))
+'''
+#clipping class and v dependent numerator 
+
+#1.6
+'''
+Animal	rat
+CellType	L5PC
+Age	21 Days
+Temperature	23.0°C
+Reversal	50.0 mV
+Ion	Na +
+Ligand ion	
+Reference	[288] A L Goldin et. al; J. Neurosci. 1998 Aug 15
+mpower	1.0
+m Inf	1.0000/(1+ exp(-0.03937*4.2*(v - -17.000)))
+m Tau	1
+'''
+#different eq. 
+##TODO add equtions as an input into the channels (could work)
+
+
+#CAV2.2 N
+'''
+https://channelpedia.epfl.ch/icdata/MOD/6.mod
+Animal	Cat
+CellType	RGC
+Age	34 Days
+Temperature	36.0°C
+Reversal	135.0 mV
+Ion	Ca +
+Ligand ion	
+Reference	[259] S J Huang et. al; Neuroscience 1998 Jul
+mpower	2.0
+m Alpha	(0.1*(v-20)/(1-exp(-(v-20)/10))) If v neq 20
+m Beta	0.4*exp(-(v+25)/18)
+hpower	1.0
+h Alpha	0.01*exp(-(v+50)/10)
+h Beta	0.1/(1+exp(-(v+17)/17))
+'''
+#alpha beta def channel here 
+
+#CAV3.1 T 
+'''
+Animal	CH
+CellType	CHO
+Age	0 Days
+Temperature	0.0°C
+Reversal	30.0 mV
+Ion	Ca +
+Ligand ion	
+Reference	[103] Achraf Traboulsie et. al; J. Physiol. (Lond.) 2007 Jan 1
+mpower	1.0
+m Inf	1 /(1+exp((v-(-42.921064))/-5.163208))
+m Tau	-0.855809 + (1.493527 * exp(-v/27.414182)) If v lt -10
+m Tau	1.0 If v gteq -10
+hpower	1.0
+h Inf	1 /(1+exp((v-(-72.907420))/4.575763))
+h Tau	9.987873 + (0.002883 * exp(-v/5.598574))
+'''
+#clipping, DC, 
+
+'''
+Model Cav3.3 (ID=42)      
+Animal	CH
+CellType	CHO
+Age	0 Days
+Temperature	0.0°C
+Reversal	30.0 mV
+Ion	Ca +
+Ligand ion	
+Reference	[103] Achraf Traboulsie et. al; J. Physiol. (Lond.) 2007 Jan 1
+mpower	1.0
+m Inf	1/(1+exp((v- -45.454426)/-5.073015))
+m Tau	3.394938 +( 54.187616 / (1 + exp((v - -40.040397)/4.110392)))
+hpower	1.0
+h Inf	1 /(1+exp((v-(-74.031965))/8.416382))
+h Tau	109.701136 + (0.003816 * exp(-v/4.781719))
+'''
+
+
+#KCA: SK
+#no ez HH model
+
+
+#SLo1 : (BK) no HH model
