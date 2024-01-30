@@ -435,3 +435,52 @@ Kv_4_2.add_gate("h",
                 inf_Kv__default, 
                 tau_Kv__4h
                 )
+
+#Kv_4_3 NA
+
+#NAV: 1.1, 2 in neuron... 
+
+#NAV 1.3:
+'''
+Animal	rat
+CellType	Neocortical
+Age	0 Days
+Temperature	23.0°C
+Reversal	50.0 mV
+Ion	Na +
+Ligand ion	
+Reference	[43] T R Cummins et. al; J. Neurosci. 2001 Aug 15
+mpower	3.0
+m Alpha	(0.182 * ((v)- -26))/(1-(exp(-((v)- -26)/9))) If v neq -26
+m Beta	(0.124 * (-(v) -26))/(1-(exp(-(-(v) -26)/9))) If v neq -26
+hpower	1.0
+h Inf	1 /(1+exp((v-(-65.0))/8.1))
+h Tau	0.40 + (0.265 * exp(-v/9.47))
+'''
+#TODO make flag for alpha beta vs. minf and mtau , then change class to be for optinal calling..
+def inf_Nav__default( potential ,gate_constants  ) :
+    if potential == gate_constants[1] : 
+        potential = potential + 0.000001 #from mod file 
+
+    alpha, beta = alpha_beta_Nav(potential ,gate_constants )
+    
+    return 
+
+def alpha_beta_Nav(potential ,gate_constants ) :
+    tmp1 = (potential)- gate_constants[1]
+    tmp2 = gate_constants[0] * tmp1
+    tmp3 = 1- np.exp(-(tmp1/gate_constants[2] )) 
+    alpha = tmp2/ tmp3
+     
+    tmp4 = (-potential)- gate_constants[1]
+    tmp5 = gate_constants[3] * tmp4
+    tmp6 = 1- np.exp(-(tmp4/gate_constants[2] )) 
+    beta= tmp5/tmp6
+    return alpha, beta 
+ 
+
+[ 0.182, -26, 9., 0.124]
+def tau_Nav__default(potential, gate_constants):
+    
+    return 
+
