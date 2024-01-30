@@ -30,7 +30,25 @@ def tau(gate, potential):
 #1.0000/(1+ exp((v - -30.0000)/27.3943)) 
     return 
 V =30 #random voltage : 
+
+
 ## Kv_1_1
+'''
+Animal	rat
+CellType	Oocyte
+Age	0 Days
+Temperature	24.0°C
+Reversal	-65.0 mV
+Ion	K +
+Ligand ion	
+Reference	[271] J P Adelman et. al; Science 1989 Apr 14
+mpower	1.0
+m Inf	1.0000/(1+ exp((v - -30.5000)/-11.3943))
+m Tau	30.0000/(1+ exp((v - -76.5600)/26.1479))
+hpower	2.0
+h Inf	1.0000/(1+ exp((v - -30.0000)/27.3943))
+h Tau	15000.0000/(1+ exp((v - -160.5600)/-100.0000))
+'''
 #https://channelpedia.epfl.ch/wikipages/1
 #T=24 C
 Kv_1_1 = Kv_x(V, -65)
@@ -40,17 +58,28 @@ Kv_1_1.add_gate("m", [1.0, 30.5, 11.39343], [30.0, 76.56, 26.1479], 1)
 Kv_1_1.add_gate("h", [1.0, 30.0, 27.393], [15000.0000, 160.5600, 100.0000], 2)
 
 
+
+
+
 ## Kv_1_2
-#T =20 
-#https://channelpedia.epfl.ch/wikipages/2
+'''
+Animal	rat
+CellType	Oocyte
+Age	0 Days
+Temperature	20.0°C
+Reversal	-65.0 mV
+Ion	K +
+Ligand ion	
+Reference	[272] L K Sprunger et. al; Eur. J. Pharmacol. 1996 Oct 31
+mpower	1.0
+m Inf	1.0000/(1+ exp((v - -21.0000)/-11.3943))
+m Tau	150.0000/(1+ exp((v - -67.5600)/34.1479))
+hpower	1.0
+h Inf	1.0000/(1+ exp((v - -22.0000)/11.3943))
+h Tau	15000.0000/(1+ exp((v - -46.5600)/-44.1479))
+'''
 Kv_1_2 = Kv_x(V, -65)
-#m Inf	1.0000/(1+ exp((v - -21.0000)/-11.3943))
-#m Tau	150.0000/(1+ exp((v - -67.5600)/34.1479))
-#gKv1_2bar = 0.00001 (S/cm2) 
 Kv_1_2.add_gate("m", [1.0000, 21.0000, -11.3943], [150.0000, 67.5600, 34.1479], 1)
-#hpower	1.0
-# h Inf	1.0000/(1+ exp((v - -22.0000)/11.3943))
-# h Tau	15000.0000/(1+ exp((v - -46.5600)/-44.1479))
 Kv_1_2.add_gate("h", [1.0000, 22.0000, 11.3943], [15000.0000, 46.5600, -44.1479], 1)
 
 
