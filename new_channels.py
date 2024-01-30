@@ -554,6 +554,57 @@ Nav_1_6.add_gate("m",
                 tau_function=tau_Kv__const
                 )
 
+#Cav2_2
+'''
+Animal	Cat
+CellType	RGC
+Age	34 Days
+Temperature	36.0°C
+Reversal	135.0 mV
+Ion	Ca +
+Ligand ion	
+Reference	[259] S J Huang et. al; Neuroscience 1998 Jul
+mpower	2.0
+m Alpha	(0.1*(v-20)/(1-exp(-(v-20)/10))) If v neq 20
+m Beta	0.4*exp(-(v+25)/18)
+hpower	1.0
+h Alpha	0.01*exp(-(v+50)/10)
+h Beta	0.1/(1+exp(-(v+17)/17))
+'''
+def cav_2_2_alpha_clip(potential, gate_constants) :
+    if potential == gate_constants[0] : 
+        potential = potential + 0.000001 #from mod 
+    tmp1 = gate_constants[1] * (potential -gate_constants[0] )
+    tmp2 = 1 - np.exp( - ( potential - gate_constants[0]) /gate_constants[2]  )
+    return tmp1/tmp2
+
+def cav_2_2_alpha_no_clip(potential, gate_constants) :
+    alpha = gate_constants[0] * np.exp( - (potential + gate_constants[1] )/gate_constants[2])
+    return alpha 
+
+def cav_2_2_beta_m(potential, gate_constants) :
+    beta = gate_constants[0] * np.exp( - (potential + gate_constants[1] )/gate_constants[2])
+    return beta 
+
+def cav_2_2_beta_h(potential, gate_constants) :
+    beta = gate_constants[0] / (1 + np.exp( - (potential + gate_constants[1] )/gate_constants[2]))
+    return beta 
+
+Cav_2_2 = Kv_x(V, 135., 0.00001, 36, "Cat")
+Cav_2_2.add_gate("m", 
+                alpha_parms=[20., 0.1, 10. ],
+                beta_parms= [ 0.4, 25., 18.],
+                gate_power=2,
+                alpha_function= cav_2_2_alpha_clip, 
+                beta_function=cav_2_2_beta_m
+                )
+Cav_2_2.add_gate("h", 
+                gate_constants_inf=[0.01 , 50., 10.],
+                gate_constants_tau= [0.1, 17, 17],
+                gate_power=1,
+                inf_function= cav_2_2_alpha_no_clip, 
+                tau_function=cav_2_2_beta_h
+                )
 #Cav3.1 
 '''
 Animal	CH
@@ -583,7 +634,7 @@ def tau_Cav_3_1_no_clip(potential, gate_constants) :
     tau = gate_constants[0] + (gate_constants[1] * np.exp((-potential)/gate_constants[2]) )
     return tau 
     
-Cav_3_1 = Kv_x(V, 30, 0.00001, 0, "rat")
+Cav_3_1 = Kv_x(V, 30, 0.00001, 0, "CH")
 Cav_3_1.add_gate("m", 
                 gate_constants_inf=[1.0,-42.921064, -5.163208],
                 gate_constants_tau= [-10, -0.855809, 1.493527, 27.414182, 1],
