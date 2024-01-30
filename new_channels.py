@@ -15,24 +15,53 @@ class Kv_x :
         self.animal = animal 
     #change to have alpha beta per gate... 
     def add_gate(self, gate_name : str, 
-                 gate_constants_inf : np.array,
-                 gate_constants_tau : np.array,
-                 gate_power : int,
-                 inf_function ,
-                 tau_function 
+                 gate_constants_inf : np.array =None,
+                 gate_constants_tau : np.array =None,
+                 gate_power : int =1 ,
+                 inf_function =None,
+                 tau_function =None,
+                 alpha_parms : np.array =None,
+                 beta_parms : np.array=None,
+                 alpha_function=None,
+                 beta_function =None
                   ) :
-        self.gates[gate_name] = {
+        if gate_name in  self.gates.keys() :
+             self.gates[gate_name] = {} #clear gate if trying to add to it again 
+
+        tmp_dict= {
             "constants_inf" :gate_constants_inf,
             "constants_tau" : gate_constants_tau,
-            "_inf" : inf_function(self.potential, gate_constants_inf  ), 
-            "_tau" : tau_function(self.potential , gate_constants_tau ),
             "_pow" : gate_power,
             "inf_func" : inf_function ,
-            "tau_func" : tau_function
+            "tau_func" : tau_function,
+            "alpha_func" : alpha_function,
+            "beta_func" : beta_function,
+            "alpha_parms" :alpha_parms,
+            "beta_parms" : beta_parms 
             }
+        self.gates[gate_name]  = {k : v for k,v  in tmp_dict.items() if v is not None }
         
+        #if inf_constants + tau constants 
+        if "constants_inf" in self.gates[gate_name] :
+            self.gates[gate_name]["_inf" ] = inf_function(self.potential, gate_constants_inf)
+        if "constants_tau" in self.gates[gate_name] :
+            self.gates[gate_name]["_tau" ] = tau_function(self.potential, gate_constants_inf)
+        # if alpha and beta 
+        if "alpha_parms" and "beta_parms" in self.gates[gate_name] :
+            alpha = self.gates[gate_name]["alpha_func"](self.potential, self.gates[gate_name]["alpha_parms"])
+            beta =  self.gates[gate_name]["beta_func"](self.potential, self.gates[gate_name]["beta_parms"])
+            self.gates[gate_name]["_tau" ] = calc_tau_gate(alpha, beta)
+            self.gates[gate_name]["_inf" ] = calc_gate_inf(alpha, beta)
         
-        
+
+def calc_gate_inf(alpha_gate: np.array, beta_gate: np.array) -> np.array:
+    gate_inf = alpha_gate / (alpha_gate + beta_gate)
+    return gate_inf
+
+#eq. 2.1.4, 2.2.4 , 3.4 , 4.2.6
+def calc_tau_gate(alpha_gate: np.array, beta_gate: np.array) -> np.array: 
+    tau = 1. / (alpha_gate + beta_gate) 
+    return tau  
         
 def inf_Kv__default( potential ,gate_constants  ) :
     gate_inf = gate_constants[0] / ( 1 + np.exp( (potential - (gate_constants[1] ) ) / gate_constants[2])    )
