@@ -13,6 +13,7 @@ class Kv_x :
         self.conductance = conductance
         self.T = T #temp in C
         self.animal = animal 
+    #change to have alpha beta per gate... 
     def add_gate(self, gate_name : str, 
                  gate_constants_inf : np.array,
                  gate_constants_tau : np.array,
