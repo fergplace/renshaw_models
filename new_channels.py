@@ -27,7 +27,7 @@ class Kv_x :
                   ) :
         if gate_name in  self.gates.keys() :
              self.gates[gate_name] = {} #clear gate if trying to add to it again 
-
+        #used to make a dict of only keys we want to use      
         tmp_dict= {
             "constants_inf" :gate_constants_inf,
             "constants_tau" : gate_constants_tau,
@@ -94,17 +94,17 @@ h Tau	15000.0000/(1+ exp((v - -160.5600)/-100.0000))
 #https://channelpedia.epfl.ch/wikipages/1
 Kv_1_1 = Kv_x(V, -65, 0.00001, 24, "rat")
 Kv_1_1.add_gate("m", 
-                [1.0, -30.5, -11.39343], 
-                [30.0, -76.56, 26.1479], 
-                1,
-                inf_Kv__default, 
-                tau_Kv__default)
+                gate_constants_inf= [1.0, -30.5, -11.39343], 
+                gate_constants_tau= [30.0, -76.56, 26.1479], 
+                gate_power= 1,
+                inf_function= inf_Kv__default, 
+                tau_function= tau_Kv__default)
 Kv_1_1.add_gate("h", 
-                [1.0, -30.0, 27.393],
-                [15000.0000, -160.5600, -100.0000], 
-                2, 
-                inf_Kv__default, 
-                tau_Kv__default)
+                gate_constants_inf= [1.0, -30.0, 27.393],
+                gate_constants_tau= [15000.0000, -160.5600, -100.0000], 
+                gate_power= 2, 
+                inf_function= inf_Kv__default, 
+                tau_function= tau_Kv__default)
 
 
 ## Kv_1_2
@@ -127,18 +127,18 @@ h Tau	15000.0000/(1+ exp((v - -46.5600)/-44.1479))
 #https://channelpedia.epfl.ch/wikipages/2
 Kv_1_2 = Kv_x(V, -65, 0.00001, 20, "rat")
 Kv_1_2.add_gate("m", 
-                [1.0000, -21.0000, -11.3943],
-                [150.0000, -67.5600, 34.1479],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default
+                gate_constants_inf= [1.0000, -21.0000, -11.3943],
+                gate_constants_tau= [150.0000, -67.5600, 34.1479],
+                gate_power= 1,
+                inf_function= inf_Kv__default, 
+                tau_function= tau_Kv__default
                 )
 Kv_1_2.add_gate("h", 
-                [1.0000, -22.0000, 11.3943], 
-                [15000.0000, -46.5600, -44.1479],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default
+                gate_constants_inf= [1.0000, -22.0000, 11.3943], 
+                gate_constants_tau = [15000.0000, -46.5600, -44.1479],
+                gate_power = 1,
+                inf_function= inf_Kv__default, 
+                tau_function =tau_Kv__default
                 )
 
 
@@ -161,8 +161,6 @@ h Inf	1.0000/(1+ exp((v - -33.0000)/3.7000))
 h Tau	(-13.7600 * v) + 1162.4000 If v lt 80
 h Tau	60 If v gteq 80
 '''
-
-
 def tau_Kv__clipping(potential, gate_constants):
 #(-13.7600 * v) + 1162.4000 If v lt 80
     if potential >= gate_constants[2] :
@@ -172,20 +170,19 @@ def tau_Kv__clipping(potential, gate_constants):
 
 Kv_1_3 = Kv_x(V, -65, 0.00001, 0, "rat")
 Kv_1_3.add_gate("m", 
-                [1.0, -14.1, -10.3],
-                [-0.2840, 19.1600, 50., 5],
-                1,
-                inf_Kv__default, 
-                tau_Kv__clipping
+                gate_constants_inf= [1.0, -14.1, -10.3],
+                gate_constants_tau= [-0.2840, 19.1600, 50., 5],
+                gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function= tau_Kv__clipping
                 )
 Kv_1_3.add_gate("h", 
-                [1.0, -33.0, 3.7], 
-                [-13.7600, 1162.4000, 80,60],
-                1,
-                inf_Kv__default, 
-                tau_Kv__clipping
+                gate_constants_inf= [1.0, -33.0, 3.7], 
+                gate_constants_tau= [-13.7600, 1162.4000, 80,60],
+                gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function=  tau_Kv__clipping
                 )
-
 
 ##Kv1_4
 '''
@@ -203,25 +200,24 @@ m Tau	3.0000
 hpower	1.0
 h Inf	1.0000/(1+ exp((v - -73.6000)/12.8000))
 h Tau	119.0000
-'''
-
+'''        
 def tau_Kv__const(potential, gate_constants):
     gate_tau = gate_constants[0]
     return gate_tau
 Kv_1_4 = Kv_x(V, -65, 0.00001, 0, "rat")
 Kv_1_4.add_gate("m", 
-                [1.0, -21.7, -16.9],
-                [3.],
-                1,
-                inf_Kv__default, 
+                gate_constants_inf= [1.0, -21.7, -16.9],
+                gate_constants_tau=[3.],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
                 tau_Kv__const
                 )
 Kv_1_4.add_gate("h", 
-                [1.0, -73.6, 12.8], 
-                [119.],
-                1,
-                inf_Kv__default, 
-                tau_Kv__const
+                gate_constants_inf=[1.0, -73.6, 12.8], 
+                gate_constants_tau=[119.],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
+                tau_function= tau_Kv__const
                 )
 
 ##Kv1_5
@@ -247,18 +243,18 @@ h Tau	50 If v gteq 100
 
 Kv_1_5 = Kv_x(V, -90, 0.00001, 9, "human")
 Kv_1_5.add_gate("m", 
-                [1.0, -6.0, -6.4],
-                [-0.1163, 8.3300, 50., 2.],
-                1,
-                inf_Kv__default, 
-                tau_Kv__clipping
+                gate_constants_inf= [1.0, -6.0, -6.4],
+                gate_constants_tau=[-0.1163, 8.3300, 50., 2.],
+                 gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv__clipping
                 )
 Kv_1_5.add_gate("h", 
-                [1.0, -25.3, 3.5], 
-                [-15.5000, 1620.0000, 100. , 50.],
-                1,
-                inf_Kv__default, 
-                tau_Kv__clipping)
+                gate_constants_inf=[1.0, -25.3, 3.5], 
+                gate_constants_tau=[-15.5000, 1620.0000, 100. , 50.],
+                 gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv__clipping)
 
 #Kv1_6
 '''
@@ -279,18 +275,18 @@ h Tau	5000.000/(1+exp(((v -(-46.560))/(-44.140))))
 '''
 Kv_1_6 = Kv_x(V, -90, 0.00001, 9, "human")
 Kv_1_6.add_gate("m", 
-                [1.0, -20.800, -8.100],
-                [30.000, -46.560, 44.140],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default
+                gate_constants_inf=[1.0, -20.800, -8.100],
+                gate_constants_tau= [30.000, -46.560, 44.140],
+                gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv__default
                 )
 Kv_1_6.add_gate("h", 
-                [1.0, -22.000, 11.390], 
-                [5000.000, -46.560, -44.140],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default)
+                gate_constants_inf=[1.0, -22.000, 11.390], 
+                gate_constants_tau= [5000.000, -46.560, -44.140],
+                gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv__default)
 
 #Kv1_7 , 1_8 NA
 
@@ -312,20 +308,21 @@ hpower	1.0
 h Inf	1/(1+exp(((v -(-19.000))/(5.000))))
 h Tau	10000.000/(1+exp(((v -(-46.560))/(-44.140))))
 '''
+
 Kv_2_1 = Kv_x(V, -65., 0.00001, 23, "Xenopus")
 Kv_2_1.add_gate("m", 
-                [1.0,- 9.200, -6.600],
-                [100.000, -46.560, 44.140],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default
+                gate_constants_inf= [1.0,- 9.200, -6.600],
+                gate_constants_tau=[100.000, -46.560, 44.140],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
+                tau_function= tau_Kv__default
                 )
 Kv_2_1.add_gate("h", 
-                [1.0, -19.000, 5.0], 
-                [10000.000, -46.560, -44.140],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default)
+                gate_constants_inf= [1.0, -19.000, 5.0], 
+                gate_constants_tau=[10000.000, -46.560, -44.140],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
+                tau_function= tau_Kv__default)
 
 
 
@@ -349,18 +346,18 @@ h Tau	10000.000/(1+exp(((v -(-46.560))/(-44.140))))
 
 Kv_2_2 = Kv_x(V, -65., 0.00001, 23, "Xenopus")
 Kv_2_2.add_gate("m", 
-                [1.0, 5.00, -12.00],
-                [130.000, -46.560, -44.140],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default
+                gate_constants_inf=[1.0, 5.00, -12.00],
+                gate_constants_tau=[130.000, -46.560, -44.140],
+                gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv__default
                 )
 Kv_2_2.add_gate("h", 
-                [1.0, 16.300, 4.8], 
-                [10000.000, 46.560, -44.140],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default)
+                gate_constants_inf=[1.0, 16.300, 4.8], 
+                gate_constants_tau=[10000.000, 46.560, -44.140],
+                gate_power=1,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv__default)
 
 
 #Kv3.1
@@ -379,11 +376,11 @@ m Tau	20.000/(1+exp(((v -(-46.560))/(-44.140))))
 '''
 Kv_3_1 = Kv_x(V, -65., 0.00001, 23, "Xenopus")
 Kv_3_1.add_gate("m", 
-                [1.0, 18.700, -9.700],
-                [20., -46.560, -44.140],
-                1,
-                inf_Kv__default, 
-                tau_Kv__default
+                gate_constants_inf=[1.0, 18.700, -9.700],
+                gate_constants_tau= [20., -46.560, -44.140],
+                gate_power= 1,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv__default
                 )
 
 #kv3_2
@@ -409,11 +406,11 @@ def tau_Kv_shift(potential , gate_constants):
 
 Kv_3_2 = Kv_x(V, -80.0, 0.00001, 22, "CH")
 Kv_3_2.add_gate("m", 
-                [1.0, -0.373267, -8.568187],
-                [3.241643, 19.106496, 19.220623, 4.451533],
-                2,
-                inf_Kv__default, 
-                tau_Kv_shift
+                gate_constants_inf=[1.0, -0.373267, -8.568187],
+                gate_constants_tau=[3.241643, 19.106496, 19.220623, 4.451533],
+                gate_power=2,
+                inf_function=inf_Kv__default, 
+                tau_function=tau_Kv_shift
                 )
 
 #Kv7_1:5 NA have to check in the papers
@@ -438,6 +435,7 @@ hpower	1.0
 h Inf	1/(1 + exp((v - -81.6)/6.7))
 h Tau	0.01*v + 6.7
 '''
+
 def tau_Kv__4m( potential ,gate_constants  ) :
     if potential < gate_constants[0] :
         tmp1 = gate_constants[1]
@@ -448,35 +446,37 @@ def tau_Kv__4m( potential ,gate_constants  ) :
         tmp1 = gate_constants[6]
         tmp2 = 1 + np.exp( ( gate_constants[7] - potential)/gate_constants[8] ) + gate_constants[9]
         return tmp1/tmp2
+    
 def tau_Kv__4h(potential, gate_constants):
     return (gate_constants[0] * potential ) + gate_constants[1]
+
 Kv_4_2 = Kv_x(V, -68.7, 0.00001, 23, "rat")
 Kv_4_2.add_gate("m", 
-                [1.0, -18.8, -16.6],
-                [-50., 1., 0.026, -0.026, 35., 0.136, 1.7, -42., -26, 0.34],
-                3,
-                inf_Kv__default, 
-                tau_Kv__4m
+                gate_constants_inf=[1.0, -18.8, -16.6],
+                gate_constants_tau= [-50., 1., 0.026, -0.026, 35., 0.136, 1.7, -42., -26, 0.34],
+                gate_power=3,
+                inf_function= inf_Kv__default, 
+                tau_function=tau_Kv__4m
                 )
 Kv_4_2.add_gate("h", 
-                [1.0, -81.6, 6.7],
-                [0.01, 6.7],
-                1,
-                inf_Kv__default, 
-                tau_Kv__4h
+                gate_constants_inf=[1.0, -81.6, 6.7],
+                gate_constants_tau= [0.01, 6.7],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
+                tau_function=tau_Kv__4h
                 )
 
 #Kv_4_3 NA
 
 #NAV: 1.1, 2 in neuron... 
 
-#NAV 1.3:
+#NAV 1.3: ######NOTE:reversal is >0 !!!
 '''
 Animal	rat
 CellType	Neocortical
 Age	0 Days
 Temperature	23.0°C
-Reversal	50.0 mV
+Reversal	50.0 mV 
 Ion	Na +
 Ligand ion	
 Reference	[43] T R Cummins et. al; J. Neurosci. 2001 Aug 15
@@ -487,30 +487,43 @@ hpower	1.0
 h Inf	1 /(1+exp((v-(-65.0))/8.1))
 h Tau	0.40 + (0.265 * exp(-v/9.47))
 '''
-#TODO make flag for alpha beta vs. minf and mtau , then change class to be for optinal calling..
-def inf_Nav__default( potential ,gate_constants  ) :
+def alpha_Nav(potential ,gate_constants ) :
     if potential == gate_constants[1] : 
         potential = potential + 0.000001 #from mod file 
-
-    alpha, beta = alpha_beta_Nav(potential ,gate_constants )
-    
-    return 
-
-def alpha_beta_Nav(potential ,gate_constants ) :
     tmp1 = (potential)- gate_constants[1]
     tmp2 = gate_constants[0] * tmp1
     tmp3 = 1- np.exp(-(tmp1/gate_constants[2] )) 
     alpha = tmp2/ tmp3
-     
+    return alpha
+
+def beta_Nav(potential ,gate_constants ) :
+    if potential == gate_constants[1] : 
+        potential = potential + 0.000001 #from mod file 
     tmp4 = (-potential)- gate_constants[1]
     tmp5 = gate_constants[3] * tmp4
     tmp6 = 1- np.exp(-(tmp4/gate_constants[2] )) 
     beta= tmp5/tmp6
-    return alpha, beta 
+    return beta 
  
 
 [ 0.182, -26, 9., 0.124]
 def tau_Nav__default(potential, gate_constants):
-    
-    return 
+    tau = gate_constants[0] + ( gate_constants[1] * np.exp((-potential )/ gate_constants[2]))
+    return tau 
+
+Nav_1_3 = Kv_x(V, 50, 0.00001, 23, "rat")
+Nav_1_3.add_gate("m", 
+                alpha_parms=[ 0.182, -26, 9., 0.124],
+                beta_parms= [ 0.182, -26, 9., 0.124],
+                gate_power=3,
+                alpha_function= alpha_Nav, 
+                beta_function=beta_Nav
+                )
+Nav_1_3.add_gate("h", 
+                gate_constants_inf=[1. , -65.0, 8.1],
+                gate_constants_tau= [0.40, 0.265, 9.47],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
+                tau_function=tau_Nav__default
+                )
 
