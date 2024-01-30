@@ -210,7 +210,7 @@ Kv_1_4.add_gate("m",
                 gate_constants_tau=[3.],
                 gate_power=1,
                 inf_function= inf_Kv__default, 
-                tau_Kv__const
+                tau_function= tau_Kv__const
                 )
 Kv_1_4.add_gate("h", 
                 gate_constants_inf=[1.0, -73.6, 12.8], 
@@ -527,3 +527,74 @@ Nav_1_3.add_gate("h",
                 tau_function=tau_Nav__default
                 )
 
+#Nav1.6
+'''
+Animal	rat
+CellType	L5PC
+Age	21 Days
+Temperature	23.0°C
+Reversal	50.0 mV
+Ion	Na +
+Ligand ion	
+Reference	[288] A L Goldin et. al; J. Neurosci. 1998 Aug 15
+mpower	1.0
+m Inf	1.0000/(1+ exp(-0.03937*4.2*(v - -17.000)))
+m Tau	1
+'''
+def Nav_1_6_inf( potential, gate_constants):
+    inf = gate_constants[0] / (1 + np.exp(gate_constants[1] * gate_constants[2] * (potential - gate_constants[3])  ))
+    return inf 
+
+Nav_1_6 = Kv_x(V, 50, 0.00001, 23, "rat")
+Nav_1_6.add_gate("m", 
+                gate_constants_inf=[1.0,-0.03937, 4.2, -17. ],
+                gate_constants_tau= [1.],
+                gate_power=1,
+                inf_function= Nav_1_6_inf, 
+                tau_function=tau_Kv__const
+                )
+
+#Cav3.1 
+'''
+Animal	CH
+CellType	CHO
+Age	0 Days
+Temperature	0.0°C
+Reversal	30.0 mV
+Ion	Ca +
+Ligand ion	
+Reference	[103] Achraf Traboulsie et. al; J. Physiol. (Lond.) 2007 Jan 1
+mpower	1.0
+m Inf	1 /(1+exp((v-(-42.921064))/-5.163208))
+m Tau	-0.855809 + (1.493527 * exp(-v/27.414182)) If v lt -10
+m Tau	1.0 If v gteq -10
+hpower	1.0
+h Inf	1 /(1+exp((v-(-72.907420))/4.575763))
+h Tau	9.987873 + (0.002883 * exp(-v/5.598574))
+'''
+def tau_Cav_3_1_clip(potential, gate_constants) :
+    if potential < -10 :
+        tau = tau_Cav_3_1_no_clip(potential, gate_constants[1:-1]) 
+    else :
+        tau =gate_constants[4]
+    return tau 
+
+def tau_Cav_3_1_no_clip(potential, gate_constants) :
+    tau = gate_constants[0] + (gate_constants[1] * np.exp((-potential)/gate_constants[2]) )
+    return tau 
+    
+Cav_3_1 = Kv_x(V, 30, 0.00001, 0, "rat")
+Cav_3_1.add_gate("m", 
+                gate_constants_inf=[1.0,-42.921064, -5.163208],
+                gate_constants_tau= [-10, -0.855809, 1.493527, 27.414182, 1],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
+                tau_function=tau_Cav_3_1_clip
+                )
+Cav_3_1.add_gate("h", 
+                gate_constants_inf=[1.0, -72.907420, 4.575763],
+                gate_constants_tau= [9.987873, 0.002883, 5.598574],
+                gate_power=1,
+                inf_function= inf_Kv__default, 
+                tau_function=tau_Cav_3_1_no_clip
+                )
