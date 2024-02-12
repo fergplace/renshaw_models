@@ -14,6 +14,22 @@ class Kv_x :
         self.conductance = conductance
         self.T = T #temp in C
         self.animal = animal 
+        self.gate_exp_arr=[1,1]
+        self.scaler = 1e6
+        
+        #taken from renshawparms, can just fix later: 
+        soma_L_um       : float         = 12. #Jankowska 10-15 
+        soma_diam_um    : float         = 12. 
+        soma_area_um2   : float         = np.pi * soma_diam_um * soma_L_um
+        
+        self.soma_area_cm2 = soma_area_um2 * 1e-8 
+        
+    def update_gate_aray(self) :
+    #get gate pow in gate array 
+        for idx, gate in enumerate(self.gates.keys()) :
+            self.gate_exp_arr[idx] = self.gates[gate]["_pow"]
+         
+         
     #change to have alpha beta per gate... 
     def add_gate(self, gate_name : str, 
                  gate_constants_inf : np.array =None,
@@ -62,20 +78,40 @@ class Kv_x :
             self.gates[gate_name]["_tau" ] = calc_tau_gate(alpha, beta)
             self.gates[gate_name]["_inf" ] = calc_gate_inf(alpha, beta)
         
-    def inf_calc(self, gate_name, potenial) :
+        self.update_gate_aray()
+        
+    def inf_calc(self, gate_name, potential) -> np.array:
         gate = self.gates[gate_name]
         if "constants_inf" in self.gates[gate_name] : 
-            inf_data =gate["inf_func"](potenial, gate["constants_inf"])
-            tau_data =gate["tau_func"](potenial, gate["constants_tau"])
+            inf_data =gate["inf_func"](potential, gate["constants_inf"])
+            tau_data =gate["tau_func"](potential, gate["constants_tau"])
         else:
             alpha_func  = gate["alpha_func"]
             beta_func   = gate["beta_func"]    
-            alpha = alpha_func(potenial, gate["alpha_parms"])
-            beta = beta_func(potenial,gate["beta_parms"])
+            alpha = alpha_func(potential, gate["alpha_parms"])
+            beta = beta_func(potential,gate["beta_parms"])
             inf_data = calc_gate_inf(alpha, beta)
             tau_data = calc_tau_gate(alpha, beta)
-        return inf_data ,tau_data 
+        return np.array([inf_data ,tau_data]) 
     
+    def inf_calc_all_gates(self, potential) -> np.array:
+        all_infs = []
+        for gate_name in self.gates.keys() :
+            all_infs.append(self.inf_calc(gate_name, potential) ) 
+        return np.array(all_infs)
+    
+    def calc_dgate_dt(self, potential, gate ) : 
+        all_infs = self.inf_calc_all_gates(potential)
+        d_gate_dt = (all_infs[:,0] - gate) / all_infs[:,1] 
+        return d_gate_dt
+    
+    def channel_calc(self, gate_arr, potential, conduct) : 
+        current = np.prod( np.power(gate_arr, self.gate_exp_arr) , 1 ) * \
+            (potential-self.reversal_potential) * \
+                (self.soma_area_cm2 * self.scaler *conduct) 
+
+        return current
+        
         
 
 def calc_gate_inf(alpha_gate: np.array, beta_gate: np.array) -> np.array:
