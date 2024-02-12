@@ -148,9 +148,9 @@ def tau_Kv__clipping(potential, gate_constants):
     tau[tmp_idx] = (potential[tmp_idx] * gate_constants[0]) + gate_constants[1]
     return tau
 def tau_Kv__const(potential, gate_constants):
-    potential = np.array([potential])
-    tau = np.ones(len(potential)) *  gate_constants[0]
- 
+    #potential = np.array([potential])
+    #tau = np.ones(len(potential)) *  gate_constants[0]
+    tau =  gate_constants[0] #changed this for sim, didnt will have the change back for plots
     return tau
 
 def tau_Kv_shift(potential , gate_constants):
