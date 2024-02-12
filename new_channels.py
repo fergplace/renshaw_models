@@ -111,7 +111,7 @@ class Kv_x :
         return d_gate_dt
     
     def current_channel_calc(self, gate_arr, potential, conduct) : 
-        current = np.prod( np.power(gate_arr, self.gate_exp_arr) , 1 ) * \
+        current = np.prod( np.power(gate_arr, self.gate_exp_arr) ) * \
             (potential-self.reversal_potential) * \
                 (self.soma_area_cm2 * self.scaler *conduct) 
 
@@ -148,7 +148,9 @@ def tau_Kv__clipping(potential, gate_constants):
     tau[tmp_idx] = (potential[tmp_idx] * gate_constants[0]) + gate_constants[1]
     return tau
 def tau_Kv__const(potential, gate_constants):
+    potential = np.array([potential])
     tau = np.ones(len(potential)) *  gate_constants[0]
+ 
     return tau
 
 def tau_Kv_shift(potential , gate_constants):

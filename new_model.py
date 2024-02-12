@@ -10,12 +10,12 @@ https://github.com/spines-center/gpu_ode_playground
 """
 import new_channels
 import RenshawParams as rp
-from general_current_eq import general_current as gen_I
-import general_gate_eq  as gen_gate
-import default_Na_channel as default_Na
-import Potassium_AHP_channel as Ca_ch
-import K_nM_channel as K_nM_ch
-import delayed_rectifier_I_K as default_K
+#from general_current_eq import general_current as gen_I
+#import general_gate_eq  as gen_gate
+#import default_Na_channel as default_Na
+#import Potassium_AHP_channel as Ca_ch
+#import K_nM_channel as K_nM_ch
+#import delayed_rectifier_I_K as default_K
 
 ##eq. 1
 def current_membrane(I_app :float, Cm :float, I_all : np.array)-> float:    
@@ -39,12 +39,12 @@ def current_membrane(I_app :float, Cm :float, I_all : np.array)-> float:
 def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float, 
                 max_I_mA: float, duration_ms: float, Cm :float 
                 ,channels ,desired_channels_name 
-                ,channel_conduct, num_gates, E_L
+                ,channel_conduct, num_gates, E_L, soma_area_cm2
                 ) -> np.ndarray:
 
     
     now_V = potential = Y[0]
-    
+    #potential = np.array([potential])
     # now_m_Na    = Y[1]
     # now_h_Na    = Y[2]
     # now_m_K     = Y[3]
@@ -62,13 +62,14 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
     num_crrents = len(desired_channels_name)+1 #add one for leak 
     #take input num channels and num gates : 
     all_I = np.zeros(num_crrents) 
-    new_Y= np.zeros(num_crrents + num_gates ) 
+    new_Y= np.zeros(num_crrents + num_gates +1)  #add one for V_new
     
     idx=1 
     for ch_num , channel in enumerate(desired_channels_name) :
         channel_in_use =  channels[channel]
-        num_gates = channel_in_use.num_gates()
-        new_Y[idx: idx+ num_gates ] = \
+        
+        num_gates = channel_in_use.num_gates
+        new_Y[idx:( idx+ num_gates) ] = \
             channel_in_use.calc_dgate_dt(potential, Y[idx: idx+ num_gates ])
             
         all_I[ch_num] = channel_in_use.current_channel_calc(
@@ -78,16 +79,16 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
            
         idx = idx+ num_gates #update 
     #deal with the leak.      
-    all_I[-1] = channel_conduct[-1](potential - E_L)
+    all_I[-1] = channel_conduct[-1]*(potential - E_L)*1e6 *soma_area_cm2
     #TODO fix the Y
     #dgate_dt_all = gen_gate.calc_dgate_dt(inf_all, tau_all, Y[1:6])
     
     I_app = I_app_fn(t, delay_ms, max_I_mA, duration_ms)
     
     #sum all currents 
-    currents_all = np.sum(all_I)
+    #currents_all = np.sum(all_I)
 
-    dV_dt = current_membrane( I_app, Cm, currents_all )
+    dV_dt = current_membrane( I_app, Cm, all_I )
     
 
     #want to return new_Y
@@ -141,10 +142,10 @@ def r_m_solver(
         renshaw_model, (0, t[-1]), Y0, t_eval = t, 
                        args=(
                            square_I_pulse, delay_ms, I_app, duration_ms
-                           ,soma_area_cm2 , Cm
+                            , Cm
                            ,channels ,desired_channels_name 
                            ,channel_conduct, num_gates,
-                           E_L
+                           E_L, soma_area_cm2
                            ), 
         method="BDF"
         )
@@ -163,33 +164,16 @@ def main()-> None:
     total_time_ms1 = 600
      # first(initial time), end time, number of step to reach the end time
  
-
-    # MCMC_new_ch_10_18_2023=   [8.405681995327375E-5
-    #                         ,0.08787160360136657
-    #                         ,0.9744519541092641
-    #                         ,0.3271016073154323
-    #                         ,8.99884413892507E-4
-    #                         ,0.0018108133072351307
-    #                           ] 
-                            
-    # g_Ca        =   MCMC_new_ch_10_18_2023[0]
-    # g_Na        =   MCMC_new_ch_10_18_2023[1]            
-    # g_K         =   MCMC_new_ch_10_18_2023[2]
-    # g_KCa       =   MCMC_new_ch_10_18_2023[3]
-    # g_L         =   MCMC_new_ch_10_18_2023[4] 
-    # g_bar_K_nM  =   MCMC_new_ch_10_18_2023[5]
-    
     
     channels = new_channels.main()
     #list the channels we want, can see all options in new_channels.py
-    desired_channels_name = ["Kv_1_1"]
-    channel_conduct = np.array([0.003,0.00033])
-    
+    desired_channels_name = ["Kv_1_2", "Nav_1_6"]
+    channel_conduct = np.array([0.8,0.06 ,0.00035])
     
     num_gates  = 0
     for ch_name in desired_channels_name:
         num_gates = channels[ch_name].num_gates +num_gates 
-    Y0 = np.zeros( len(desired_channels_name) + num_gates +1  )
+    Y0 = np.zeros( len(desired_channels_name) + num_gates +2  )
     
     #TODO generate a Y0 
     #TODO fix new_channels.main to only create dict of channels we want. 
@@ -206,9 +190,6 @@ def main()-> None:
 
     time_end = time.time()
     print(f"Completed solution in {time_end - time_start:.2} seconds")
-    
-
-
     plt.figure()
     # now_m_Na    = Y[1]
     # now_h_Na    = Y[2]
@@ -217,9 +198,9 @@ def main()-> None:
     # now_m_K_nM  = Y[5]
     # now_Ca2     = Y[6]
     # now_m_Ca    = Y[7] 
-    plt.plot(sol.t, sol.y[3, :], label='m_K')
-    plt.plot(sol.t, sol.y[1, :], label='m_Na') 
-    plt.plot(sol.t, sol.y[2, :], label='h_Na')
+    #plt.plot(sol.t, sol.y[3, :], label='m_K')
+    plt.plot(sol.t, sol.y[1, :], label='m_Kv_1') 
+    plt.plot(sol.t, sol.y[2, :], label='h_Kv1')
     plt.xlim(0, 200)
     plt.legend() 
     plt.title("newer")
@@ -232,7 +213,7 @@ def main()-> None:
     plt.ylabel('Membrane Voltage (mV)')
     #plt.xlim(0, total_time_ms1)
     #plt.xlim(25,45)
-    plt.ylim(-80., 30.)
+    plt.ylim(-80., 100.)
     plt.legend()                             # to label the slopes
     plt.show()                               # to show second graph
     
