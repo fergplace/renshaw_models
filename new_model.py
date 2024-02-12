@@ -183,17 +183,18 @@ def main()-> None:
     channels = new_channels.main()
     #list the channels we want, can see all options in new_channels.py
     desired_channels_name = ["Kv_1_1"]
-    channel_conduct = np.array([0.003])
-    Y0 = []
+    channel_conduct = np.array([0.003,0.00033])
+    
+    
     num_gates  = 0
     for ch_name in desired_channels_name:
         num_gates = channels[ch_name].num_gates +num_gates 
+    Y0 = np.zeros( len(desired_channels_name) + num_gates +1  )
     
     #TODO generate a Y0 
-    
     #TODO fix new_channels.main to only create dict of channels we want. 
     sol = r_m_solver(
-        square_I_pulse, total_time_ms = total_time_ms1  ,
+        square_I_pulse, total_time_ms = total_time_ms1, Y0=Y0,
         delay_ms = delay_ms1  , I_app = I_app1  , duration_ms = duration_ms1 
         ,channels = channels, desired_channels_name = desired_channels_name,
         channel_conduct =channel_conduct, num_gates = num_gates) 
