@@ -37,30 +37,27 @@ def current_membrane(I_app :float, Cm :float, I_all : np.array)-> float:
 
 
 def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float, 
-                max_I_mA: float, duration_ms: float, channel_powers 
+                max_I_mA: float, duration_ms: float, Cm :float 
                 ,channels ,desired_channels_name 
-                ,channel_conduct, num_gates
-                
-                
-                : np.array ) -> np.ndarray:
+                ,channel_conduct, num_gates, E_L
+                ) -> np.ndarray:
 
-    
     
     now_V = potential = Y[0]
     
-    now_m_Na    = Y[1]
-    now_h_Na    = Y[2]
-    now_m_K     = Y[3]
-    now_m_AHP   = Y[4]
-    now_m_K_nM  = Y[5]
-    now_Ca2     = Y[6]
-    now_m_Ca    = Y[7]
+    # now_m_Na    = Y[1]
+    # now_h_Na    = Y[2]
+    # now_m_K     = Y[3]
+    # now_m_AHP   = Y[4]
+    # now_m_K_nM  = Y[5]
+    # now_Ca2     = Y[6]
+    # now_m_Ca    = Y[7]
     
-    now_I_Na    = Y[8]
-    now_I_K     = Y[9]
-    now_I_L     = Y[10]
-    now_I_K_nM  = Y[11]
-    now_I_AHP   = Y[12]
+    # now_I_Na    = Y[8]
+    # now_I_K     = Y[9]
+    # now_I_L     = Y[10]
+    # now_I_K_nM  = Y[11]
+    # now_I_AHP   = Y[12]
 
     num_crrents = len(desired_channels_name)+1 #add one for leak 
     #take input num channels and num gates : 
@@ -131,7 +128,8 @@ def r_m_solver(
     ,Y0 : np.ndarray = rp.RenshawParams.Y0 
     ,soma_area_cm2 : float = rp.RenshawParams.soma_area_cm2
     ,Cm : float = rp.RenshawParams.Cm 
-    ,channel_powers : np.array = rp.RenshawParams.channel_powers
+    ,E_L : float = rp.RenshawParams.E_L
+   
     
             
     ) : 
@@ -143,9 +141,10 @@ def r_m_solver(
         renshaw_model, (0, t[-1]), Y0, t_eval = t, 
                        args=(
                            square_I_pulse, delay_ms, I_app, duration_ms
-                           ,soma_area_cm2 , Cm ,channel_powers
+                           ,soma_area_cm2 , Cm
                            ,channels ,desired_channels_name 
-                           ,channel_conduct, num_gates
+                           ,channel_conduct, num_gates,
+                           E_L
                            ), 
         method="BDF"
         )
@@ -185,7 +184,7 @@ def main()-> None:
     #list the channels we want, can see all options in new_channels.py
     desired_channels_name = ["Kv_1_1"]
     channel_conduct = np.array([0.003])
-    
+    Y0 = []
     num_gates  = 0
     for ch_name in desired_channels_name:
         num_gates = channels[ch_name].num_gates +num_gates 
