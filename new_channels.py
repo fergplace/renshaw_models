@@ -103,13 +103,14 @@ class Kv_x :
         for gate_name in self.gates.keys() :
             all_infs.append(self.inf_calc(gate_name, potential) ) 
         return np.array(all_infs)
+
     
     def calc_dgate_dt(self, potential, gate ) : 
         all_infs = self.inf_calc_all_gates(potential)
         d_gate_dt = (all_infs[:,0] - gate) / all_infs[:,1] 
         return d_gate_dt
     
-    def channel_calc(self, gate_arr, potential, conduct) : 
+    def current_channel_calc(self, gate_arr, potential, conduct) : 
         current = np.prod( np.power(gate_arr, self.gate_exp_arr) , 1 ) * \
             (potential-self.reversal_potential) * \
                 (self.soma_area_cm2 * self.scaler *conduct) 

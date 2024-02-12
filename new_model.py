@@ -39,7 +39,7 @@ def current_membrane(I_app :float, Cm :float, I_all : np.array)-> float:
 def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float, 
                 max_I_mA: float, duration_ms: float, channel_powers 
                 ,channels ,desired_channels_name 
-                ,channel_conduct
+                ,channel_conduct, num_gates
                 
                 
                 : np.array ) -> np.ndarray:
@@ -62,63 +62,40 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
     now_I_K_nM  = Y[11]
     now_I_AHP   = Y[12]
 
+    num_crrents = len(desired_channels_name)+1 #add one for leak 
+    #take input num channels and num gates : 
+    all_I = np.zeros(num_crrents) 
+    new_Y= np.zeros(num_crrents + num_gates ) 
     
-    new_Y= []
-    
-    
-    for channel in desired_channels_name :
-        channels[channel].calc_dgate_dt(potential, GATE_ARRAY_CREATE ) )
-    
-         
+    idx=1 
+    for ch_num , channel in enumerate(desired_channels_name) :
+        channel_in_use =  channels[channel]
+        num_gates = channel_in_use.num_gates()
+        new_Y[idx: idx+ num_gates ] = \
+            channel_in_use.calc_dgate_dt(potential, Y[idx: idx+ num_gates ])
             
-    #inf_all = gen_gate.calc_gate_inf(all_alpha, all_beta)
-    #tau_all = gen_gate.calc_tau_gate(all_alpha, all_beta)
+        all_I[ch_num] = channel_in_use.current_channel_calc(
+                                Y[idx: idx+ num_gates]
+                                ,potential, channel_conduct[ch_num]
+                                ) 
+           
+        idx = idx+ num_gates #update 
+    #deal with the leak.      
+    all_I[-1] = channel_conduct[-1](potential - E_L)
     #TODO fix the Y
-    dgate_dt_all = gen_gate.calc_dgate_dt(inf_all, tau_all, Y[1:6])
+    #dgate_dt_all = gen_gate.calc_dgate_dt(inf_all, tau_all, Y[1:6])
     
     I_app = I_app_fn(t, delay_ms, max_I_mA, duration_ms)
-    #TODO add input as all reverse potentials, can do this before we call,
-    #TODO add input of gate array, make it a part of the class 
-    all_E = np.array([E_Na, E_K , E_Ca, E_K, E_L, E_K] ) 
     
-    #Na( m. h), I_K(m), I_Ca(m), I_AHP(m_AHP), I_L(1), I_K_nM(n_K_nM)
-    gate_arr = np.array([ [now_m_Na, now_h_Na] ,
-                             [now_m_K,1], 
-                             [now_m_Ca,1 ] ,
-                             [now_m_AHP , 1] , 
-                             [1,1] , 
-                             [now_m_K_nM, 1]
-                             ])
-    #could just make the class have a call for current.... might be the easier thing to do .
-    conduct = np.array([g_Na, g_K, g_Ca, g_KCa, g_L, g_bar_K_nM  ])
-    currents_all = gen_I( now_V , all_E, soma_area_cm2 , gate_arr, conduct ,channel_powers, 1e6  )
-    
-   
-   
-    #poassium AHP channel 
-    I_Na = currents_all[0]
-    I_K= currents_all[1]
-    I_Ca = currents_all[2]
-    I_L= currents_all[3]
-    I_K_nM= currents_all[4]
-    I_AHP= currents_all[5]
-    
-    dm_Ca_dt = Ca_ch.calc_dm_Ca_dt(now_V, now_m_Ca, Ca_m_alpha_half , Ca_m_alpha_slope  , Ca_m_alpha_rate )
-    drive_channel_ca = Ca_ch.calc_drive_channel_ca(I_Ca, F  , Ca2_depth  )
-    dCa2_dt = Ca_ch.calc_dCa2_dt(drive_channel_ca, now_Ca2 , Ca2_tau, Ca2_inf)
-
+    #sum all currents 
+    currents_all = np.sum(all_I)
 
     dV_dt = current_membrane( I_app, Cm, currents_all )
-    dm_Na_dt =dgate_dt_all[0]
-    dh_Na_dt = dgate_dt_all[1]
-    dm_K_dt =dgate_dt_all[2]
-    dm_AHP_dt=dgate_dt_all[3]
-    d_m_K_nM_dt=dgate_dt_all[4]
     
-    return (
-        dV_dt, dm_Na_dt, dh_Na_dt,dm_K_dt ,dm_AHP_dt , d_m_K_nM_dt, dCa2_dt, dm_Ca_dt,   
-        I_Na-now_I_Na, I_K-now_I_K, I_L-now_I_L, I_K_nM - now_I_K_nM, I_AHP - now_I_AHP 
-    )
+
+    #want to return new_Y
+    new_Y[idx:] = Y[idx:] - all_I
+    return (new_Y)
 
 
 
@@ -148,7 +125,7 @@ def r_m_solver(
     ,channels : dict
     ,desired_channels_name 
     ,channel_conduct
-    
+    ,num_gates
     ,V0 : float  = rp.RenshawParams.Y0[0]
     ,Y0 : np.ndarray = rp.RenshawParams.Y0 
     ,soma_area_cm2 : float = rp.RenshawParams.soma_area_cm2
@@ -167,7 +144,7 @@ def r_m_solver(
                            square_I_pulse, delay_ms, I_app, duration_ms
                            ,soma_area_cm2 , Cm ,channel_powers
                            ,channels ,desired_channels_name 
-                           ,channel_conduct
+                           ,channel_conduct, num_gates
                            ), 
         method="BDF"
         )
@@ -208,12 +185,18 @@ def main()-> None:
     desired_channels_name = ["Kv_1_1"]
     channel_conduct = np.array([0.003])
     
+    num_gates  = 0
+    for ch_name in desired_channels_name:
+        num_gates = channels[ch_name].num_gates +num_gates 
+    
+    #TODO generate a Y0 
+    
     #TODO fix new_channels.main to only create dict of channels we want. 
     sol = r_m_solver(
         square_I_pulse, total_time_ms = total_time_ms1  ,
         delay_ms = delay_ms1  , I_app = I_app1  , duration_ms = duration_ms1 
         ,channels = channels, desired_channels_name = desired_channels_name,
-        channel_conduct =channel_conduct) 
+        channel_conduct =channel_conduct, num_gates = num_gates) 
 
     
     
