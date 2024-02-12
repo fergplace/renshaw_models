@@ -94,6 +94,7 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
     
 
     #want to return new_Y
+    new_Y[0] = dV_dt
     new_Y[idx:] = Y[idx:] - all_I
     return (new_Y)
 
