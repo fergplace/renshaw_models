@@ -8,6 +8,7 @@ from dataclasses import dataclass
 """
 https://github.com/spines-center/gpu_ode_playground    
 """
+import new_channels
 import RenshawParams as rp
 from general_current_eq import general_current as gen_I
 import general_gate_eq  as gen_gate
@@ -37,12 +38,16 @@ def current_membrane(I_app :float, Cm :float, I_all : np.array)-> float:
 
 def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float, 
                 max_I_mA: float, duration_ms: float, channel_powers 
-                ,channels #TODO deal with this 
+                ,channels ,desired_channels_name 
+                ,channel_conduct
+                
+                
                 : np.array ) -> np.ndarray:
 
     
     
     now_V = potential = Y[0]
+    
     now_m_Na    = Y[1]
     now_h_Na    = Y[2]
     now_m_K     = Y[3]
@@ -50,20 +55,21 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
     now_m_K_nM  = Y[5]
     now_Ca2     = Y[6]
     now_m_Ca    = Y[7]
+    
     now_I_Na    = Y[8]
     now_I_K     = Y[9]
     now_I_L     = Y[10]
     now_I_K_nM  = Y[11]
     now_I_AHP   = Y[12]
 
-    inf_all = [] 
-    tau_all =[] 
-    for channel in channels.keys() :
-        for gate_name in channels[channel].gates.keys() :
-            inf_data, tau_data =channels[channel].inf_calc(gate_name, potential)
-            inf_all.append(inf_data)
-            tau_data.append(tau_all)
-            
+    
+    new_Y= []
+    
+    
+    for channel in desired_channels_name :
+        channels[channel].calc_dgate_dt(potential, GATE_ARRAY_CREATE ) )
+    
+         
             
     #inf_all = gen_gate.calc_gate_inf(all_alpha, all_beta)
     #tau_all = gen_gate.calc_tau_gate(all_alpha, all_beta)
@@ -139,12 +145,16 @@ def r_m_solver(
     ,delay_ms : float 
     ,I_app : float 
     ,duration_ms : float 
+    ,channels : dict
+    ,desired_channels_name 
+    ,channel_conduct
+    
     ,V0 : float  = rp.RenshawParams.Y0[0]
     ,Y0 : np.ndarray = rp.RenshawParams.Y0 
     ,soma_area_cm2 : float = rp.RenshawParams.soma_area_cm2
     ,Cm : float = rp.RenshawParams.Cm 
     ,channel_powers : np.array = rp.RenshawParams.channel_powers
-    ,
+    
             
     ) : 
 
@@ -154,10 +164,10 @@ def r_m_solver(
     sol = si.solve_ivp(
         renshaw_model, (0, t[-1]), Y0, t_eval = t, 
                        args=(
-                           square_I_pulse, delay_ms, I_app, duration_ms,
-                             soma_area_cm2 , Cm
-                            ,channel_powers
-                           ,
+                           square_I_pulse, delay_ms, I_app, duration_ms
+                           ,soma_area_cm2 , Cm ,channel_powers
+                           ,channels ,desired_channels_name 
+                           ,channel_conduct
                            ), 
         method="BDF"
         )
@@ -177,24 +187,33 @@ def main()-> None:
      # first(initial time), end time, number of step to reach the end time
  
 
-    MCMC_new_ch_10_18_2023=   [8.405681995327375E-5
-                            ,0.08787160360136657
-                            ,0.9744519541092641
-                            ,0.3271016073154323
-                            ,8.99884413892507E-4
-                            ,0.0018108133072351307
-                              ] 
+    # MCMC_new_ch_10_18_2023=   [8.405681995327375E-5
+    #                         ,0.08787160360136657
+    #                         ,0.9744519541092641
+    #                         ,0.3271016073154323
+    #                         ,8.99884413892507E-4
+    #                         ,0.0018108133072351307
+    #                           ] 
                             
-    g_Ca        =   MCMC_new_ch_10_18_2023[0]
-    g_Na        =   MCMC_new_ch_10_18_2023[1]            
-    g_K         =   MCMC_new_ch_10_18_2023[2]
-    g_KCa       =   MCMC_new_ch_10_18_2023[3]
-    g_L         =   MCMC_new_ch_10_18_2023[4] 
-    g_bar_K_nM  =   MCMC_new_ch_10_18_2023[5]
+    # g_Ca        =   MCMC_new_ch_10_18_2023[0]
+    # g_Na        =   MCMC_new_ch_10_18_2023[1]            
+    # g_K         =   MCMC_new_ch_10_18_2023[2]
+    # g_KCa       =   MCMC_new_ch_10_18_2023[3]
+    # g_L         =   MCMC_new_ch_10_18_2023[4] 
+    # g_bar_K_nM  =   MCMC_new_ch_10_18_2023[5]
     
+    
+    channels = new_channels.main()
+    #list the channels we want, can see all options in new_channels.py
+    desired_channels_name = ["Kv_1_1"]
+    channel_conduct = np.array([0.003])
+    
+    #TODO fix new_channels.main to only create dict of channels we want. 
     sol = r_m_solver(
-        square_I_pulse, total_time_ms = total_time_ms1  , delay_ms = delay_ms1  , I_app = I_app1  , duration_ms = duration_ms1 
-        ,g_Ca = g_Ca, g_Na =g_Na, g_K = g_K, g_KCa=  g_KCa, g_L = g_L , g_bar_K_nM = g_bar_K_nM ) 
+        square_I_pulse, total_time_ms = total_time_ms1  ,
+        delay_ms = delay_ms1  , I_app = I_app1  , duration_ms = duration_ms1 
+        ,channels = channels, desired_channels_name = desired_channels_name,
+        channel_conduct =channel_conduct) 
 
     
     

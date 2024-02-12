@@ -16,14 +16,17 @@ class Kv_x :
         self.animal = animal 
         self.gate_exp_arr=[1,1]
         self.scaler = 1e6
-        
+        self.num_gates = 0
         #taken from renshawparms, can just fix later: 
         soma_L_um       : float         = 12. #Jankowska 10-15 
         soma_diam_um    : float         = 12. 
         soma_area_um2   : float         = np.pi * soma_diam_um * soma_L_um
         
         self.soma_area_cm2 = soma_area_um2 * 1e-8 
-        
+    
+    def num_gates(self) : 
+        return self.num_gates
+    
     def update_gate_aray(self) :
     #get gate pow in gate array 
         for idx, gate in enumerate(self.gates.keys()) :
@@ -79,6 +82,7 @@ class Kv_x :
             self.gates[gate_name]["_inf" ] = calc_gate_inf(alpha, beta)
         
         self.update_gate_aray()
+        self.num_gates = self.num_gates + 1
         
     def inf_calc(self, gate_name, potential) -> np.array:
         gate = self.gates[gate_name]
