@@ -158,7 +158,7 @@ def main()-> None:
     time_start = time.time()
     
     ### Applied Neuron Current "Injected electrode/generator" synaptic inputs
-    I_app1 = 150e-3 # 350e-3  # nA 
+    I_app1 = 300e-3 # 350e-3  # nA 
     delay_ms1 = 30.
     duration_ms1 = 450.
     total_time_ms1 = 600
@@ -168,7 +168,7 @@ def main()-> None:
     channels = new_channels.main()
     #list the channels we want, can see all options in new_channels.py
     desired_channels_name = ["Kv_1_2", "Kv_3_1", "Nav_1_6"]
-    channel_conduct = np.array([0.08,0.06, 0.05 ,0.00035])
+    channel_conduct = np.array([200e-3,300e-3,10e-3 , 3.3e-4])
     
     num_gates  = 0
     for ch_name in desired_channels_name:
@@ -199,9 +199,13 @@ def main()-> None:
     # now_Ca2     = Y[6]
     # now_m_Ca    = Y[7] 
     #plt.plot(sol.t, sol.y[3, :], label='m_K')
-    plt.plot(sol.t, sol.y[1, :], label='m_Kv_1') 
-    plt.plot(sol.t, sol.y[2, :], label='h_Kv1')
+    plt.plot(sol.t, sol.y[1, :], label='m_Kv_1_2') 
+    plt.plot(sol.t, sol.y[2, :], label='h_Kv_1_2')
+    plt.plot(sol.t, sol.y[3, :], label='m_Kv_3_1') 
+    plt.plot(sol.t, sol.y[4, :], label='h_Kv_3_1')
+    plt.plot(sol.t, sol.y[5, :], label='m_Nav_1_6') 
     plt.xlim(0, 200)
+    plt.ylim(-1,1)
     plt.legend() 
     plt.title("newer")
 
