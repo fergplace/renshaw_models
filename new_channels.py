@@ -211,7 +211,8 @@ def tau_Nav__default(potential, gate_constants):
     return tau 
 
 def Nav_1_6_inf( potential, gate_constants):
-    inf = gate_constants[0] / (1 + np.exp(gate_constants[1] * gate_constants[2] * (potential - gate_constants[3])  ))
+    inf = gate_constants[0] / (1 + \
+        np.exp(gate_constants[1] * gate_constants[2] * (potential - gate_constants[3])  ))
     return inf 
 def cav_2_2_alpha_clip(potential, gate_constants) :
     # if potential == gate_constants[0] : 

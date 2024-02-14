@@ -168,7 +168,7 @@ def main()-> None:
     channels = new_channels.main()
     #list the channels we want, can see all options in new_channels.py
     desired_channels_name = ["Kv_1_2", "Kv_3_1", "Nav_1_6"]
-    channel_conduct = np.array([200e-3,300e-3,10e-3 , 3.3e-4])
+    channel_conduct = np.array([200e-3, 700e-3, 0 , 3.3e-4])
     
     num_gates  = 0
     for ch_name in desired_channels_name:
