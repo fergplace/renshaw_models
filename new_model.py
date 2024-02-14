@@ -43,7 +43,7 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
                 ) -> np.ndarray:
 
     
-    now_V = potential = Y[0]
+    now_V  = Y[0]
     #potential = np.array([potential])
     # now_m_Na    = Y[1]
     # now_h_Na    = Y[2]
@@ -58,7 +58,7 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
     # now_I_L     = Y[10]
     # now_I_K_nM  = Y[11]
     # now_I_AHP   = Y[12]
-
+    potential = np.array(now_V)
     num_crrents = len(desired_channels_name)+1 #add one for leak 
     #take input num channels and num gates : 
     all_I = np.zeros(num_crrents) 
@@ -167,8 +167,8 @@ def main()-> None:
     
     channels = new_channels.main()
     #list the channels we want, can see all options in new_channels.py
-    desired_channels_name = ["Kv_1_2", "Kv_3_1", "Nav_1_6"]
-    channel_conduct = np.array([200e-3, 700e-3, 0 , 3.3e-4])
+    desired_channels_name = ["Kv_1_2", "Kv_3_1", "Nav_1_3", "Nav_1_6"]
+    channel_conduct = np.array([200e-3, 200-3, 200e-3 , 200e-3, 3.3e-4])
     
     num_gates  = 0
     for ch_name in desired_channels_name:

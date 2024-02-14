@@ -187,8 +187,9 @@ def alpha_Nav(potential ,gate_constants ) :
     # print(type(potential))
     # if potential == float(gate_constants[1]) : 
     #     potential = potential + 0.000001 #from mod file
-    idx_to_change = np.where(potential ==gate_constants[1])
-    potential[idx_to_change] = potential[idx_to_change] + 0.000001  
+    idx_to_change = np.array(np.where(potential ==gate_constants[1]))[0]
+    if len(idx_to_change) : #avoid len zero case 
+        potential[idx_to_change] = potential[idx_to_change] + 0.000001  
     tmp1 = (potential)- gate_constants[1]
     tmp2 = gate_constants[0] * tmp1
     tmp3 = 1- np.exp(-(tmp1/gate_constants[2] )) 
@@ -196,8 +197,9 @@ def alpha_Nav(potential ,gate_constants ) :
     return alpha
 
 def beta_Nav(potential :np.array ,gate_constants ) :
-    idx_to_change = np.where(potential ==gate_constants[1])
-    potential[idx_to_change] = potential[idx_to_change] + 0.000001  
+    idx_to_change = np.array(np.where(potential ==gate_constants[1]))[0]
+    if len(idx_to_change) : #avoid len zero case 
+        potential[idx_to_change] = potential[idx_to_change] + 0.000001  
     # if potential == gate_constants[1] : 
     #     potential = potential + 0.000001 #from mod file 
     tmp4 = (-potential)- gate_constants[1]
