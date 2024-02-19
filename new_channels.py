@@ -197,20 +197,23 @@ def alpha_Nav(potential ,gate_constants ) :
     return alpha
 
 def beta_Nav(potential :np.array ,gate_constants ) :
-    idx_to_change = np.array(np.where(potential ==gate_constants[1]))[0]
+    idx_to_change = np.array(np.where( np.isclose(potential, gate_constants[1] , atol=1e-10 ) )      )[0]
     if len(idx_to_change) : #avoid len zero case 
-        potential[idx_to_change] = potential[idx_to_change] + 0.000001  
+        potential[idx_to_change] = potential[idx_to_change] + 1e-9
     # if potential == gate_constants[1] : 
     #     potential = potential + 0.000001 #from mod file 
     tmp4 = (-potential)- gate_constants[1]
+    print(tmp4)
     tmp5 = gate_constants[3] * tmp4
+    print(tmp5)
     tmp6 = 1- np.exp(-(tmp4/gate_constants[2] )) 
+    print(tmp6)
     beta= tmp5/tmp6
     return beta 
 
 def tau_Nav__default(potential, gate_constants):
     tau = gate_constants[0] + ( gate_constants[1] * np.exp((-potential )/ gate_constants[2]))
-    return tau 
+    return tau
 
 def Nav_1_6_inf( potential, gate_constants):
     inf = gate_constants[0] / (1 + \
@@ -652,7 +655,7 @@ def main() -> dict:
     '''
     #[ 0.182, -26, 9., 0.124]
 
-    Nav_1_3 = Kv_x(V, np.array([50]), 0.00001, 23, "rat")
+    Nav_1_3 = Kv_x(V, 50, 0.00001, 23, "rat")
     Nav_1_3.add_gate("m", 
                     alpha_parms=[ 0.182, -26, 9., 0.124],
                     beta_parms= [ 0.124, -26, 9.,0.124],
