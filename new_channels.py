@@ -107,7 +107,7 @@ class Kv_x :
     
     def calc_dgate_dt(self, potential, gate ) : 
         all_infs = self.inf_calc_all_gates(potential)[0]
-        print(all_infs)
+        #print(all_infs)
         d_gate_dt = (all_infs[0] - gate) / all_infs[1]  #(all_infs[:,0] - gate) / all_infs[:,1] 
         return d_gate_dt
     

@@ -162,7 +162,6 @@ def main()-> None:
     duration_ms1 = 450.
     total_time_ms1 = 600
      # first(initial time), end time, number of step to reach the end time
- 
     
     channels = new_channels.main()
     #list the channels we want, can see all options in new_channels.py
@@ -182,24 +181,10 @@ def main()-> None:
         ,channels = channels, desired_channels_name = desired_channels_name,
         channel_conduct =channel_conduct, num_gates = num_gates) 
 
-    
-    #print( get_mean_data_sweep_temporal_freq_adj( sol.t  , sol.y[0]  ,  -10 , duration_ms1   ) )
-
 
     time_end = time.time()
     print(f"Completed solution in {time_end - time_start:.2} seconds")
     plt.figure()
-    # now_m_Na    = Y[1]
-    # now_h_Na    = Y[2]
-    # now_m_K     = Y[3]
-    # now_m_AHP   = Y[4]
-    # now_m_K_nM  = Y[5]
-    # now_Ca2     = Y[6]
-    # now_m_Ca    = Y[7] 
-    #plt.plot(sol.t, sol.y[3, :], label='m_K')
-    
-    # plt.plot(sol.t, sol.y[1, :], label='m_Kv_3_1') 
-    # plt.plot(sol.t, sol.y[2, :], label='h_Kv_3_1') 
 
     plt.plot(sol.t, sol.y[1, :], label='m_Kv_1_2') 
     plt.plot(sol.t, sol.y[2, :], label='h_Kv_1_2')
