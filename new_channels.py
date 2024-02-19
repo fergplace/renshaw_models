@@ -106,8 +106,9 @@ class Kv_x :
 
     
     def calc_dgate_dt(self, potential, gate ) : 
-        all_infs = self.inf_calc_all_gates(potential)
-        d_gate_dt = (all_infs[:,0] - gate) / all_infs[:,1] 
+        all_infs = self.inf_calc_all_gates(potential)[0]
+        print(all_infs)
+        d_gate_dt = (all_infs[0] - gate) / all_infs[1]  #(all_infs[:,0] - gate) / all_infs[:,1] 
         return d_gate_dt
     
     def current_channel_calc(self, gate_arr, potential, conduct) : 
@@ -203,11 +204,11 @@ def beta_Nav(potential :np.array ,gate_constants ) :
     # if potential == gate_constants[1] : 
     #     potential = potential + 0.000001 #from mod file 
     tmp4 = (-potential)- gate_constants[1]
-    print(tmp4)
+    #print(tmp4)
     tmp5 = gate_constants[3] * tmp4
-    print(tmp5)
+    #print(tmp5)
     tmp6 = 1- np.exp(-(tmp4/gate_constants[2] )) 
-    print(tmp6)
+    #print(tmp6)
     beta= tmp5/tmp6
     return beta 
 

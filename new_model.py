@@ -93,7 +93,7 @@ def renshaw_model(t: float, Y: np.ndarray, I_app_fn: float, delay_ms: float,
 
     #want to return new_Y
     new_Y[0] = dV_dt
-    new_Y[idx:] = Y[idx:] - all_I
+    new_Y[idx:] = all_I- Y[idx:] 
     return (new_Y)
 
 
@@ -156,9 +156,8 @@ def r_m_solver(
     
 def main()-> None:
     time_start = time.time()
-    
     ### Applied Neuron Current "Injected electrode/generator" synaptic inputs
-    I_app1 = 0e-3 # 350e-3  # nA 
+    I_app1 = 350e-3 # 350e-3  # nA 
     delay_ms1 = 30.
     duration_ms1 = 450.
     total_time_ms1 = 600
@@ -167,8 +166,8 @@ def main()-> None:
     
     channels = new_channels.main()
     #list the channels we want, can see all options in new_channels.py
-    desired_channels_name = ["Kv_1_2", "Kv_3_1", "Nav_1_3"]
-    channel_conduct = np.array([200e-3, 200e-3, 20e-3, 3.3e-4])
+    desired_channels_name = ["Kv_1_2", "Kv_3_1","Nav_1_3"] #"Kv_1_2", "Kv_3_1","Nav_1_3"
+    channel_conduct = np.array([200e-3,200e-3,200e-3, 3.3e-4])
     
     num_gates  = 0
     for ch_name in desired_channels_name:
@@ -184,7 +183,6 @@ def main()-> None:
         channel_conduct =channel_conduct, num_gates = num_gates) 
 
     
-    
     #print( get_mean_data_sweep_temporal_freq_adj( sol.t  , sol.y[0]  ,  -10 , duration_ms1   ) )
 
 
@@ -199,18 +197,30 @@ def main()-> None:
     # now_Ca2     = Y[6]
     # now_m_Ca    = Y[7] 
     #plt.plot(sol.t, sol.y[3, :], label='m_K')
+    
+    # plt.plot(sol.t, sol.y[1, :], label='m_Kv_3_1') 
+    # plt.plot(sol.t, sol.y[2, :], label='h_Kv_3_1') 
+
     plt.plot(sol.t, sol.y[1, :], label='m_Kv_1_2') 
     plt.plot(sol.t, sol.y[2, :], label='h_Kv_1_2')
     plt.plot(sol.t, sol.y[3, :], label='m_Kv_3_1') 
-    plt.plot(sol.t, sol.y[4, :], label='h_Kv_3_1')
-    plt.plot(sol.t, sol.y[5, :], label='m_Nav_1_3') 
-    plt.plot(sol.t, sol.y[6, :], label='h_Nav_1_3') 
+    plt.plot(sol.t, sol.y[4, :], label='m_Nav_1_3') 
+    plt.plot(sol.t, sol.y[5, :], label='h_Nav_1_3') 
     plt.xlim(0, 600)
     plt.ylim(-1,1)
     plt.legend() 
     plt.title("newer")
 
-
+    plt.figure()
+    plt.plot(sol.t, sol.y[6, :], label='I_Kv_1_2') 
+    plt.plot(sol.t, sol.y[7, :], label='I_Kv_3_1')
+    plt.plot(sol.t, sol.y[8, :], label='I_Nav_1_3') 
+    plt.plot(sol.t, sol.y[9, :], label='I_L') 
+    plt.xlim(0, 600)
+    plt.ylim(-1,1)
+    plt.legend() 
+    plt.title("newer")
+    
     
     plt.figure()                             # creates a new graph with plot
     plt.plot(sol.t, sol.y[0, :])
